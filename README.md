@@ -27,20 +27,20 @@ Public Sub sample()
   myDay    = 1
   maxMonth = 12
 
-  Application.ScreenUpdating = False
+  Application.ScreenUpdating    = False
   ActiveSheet.EnableCalculation = False
-  Application.Calculation = xlCalculationManual
+  Application.Calculation       = xlCalculationManual
 
   For i = startRow To maxMonth
-    myMonth = i
+    myMonth     = i
     cal.calDate = DateSerial(myYear, myMonth, myDay)
     Call cal.render(ActiveSheet, startRow, startCol)
     startRow = span * i
   Next
 
-  Application.Calculation = xlCalculationAutomatic
+  Application.Calculation       = xlCalculationAutomatic
   ActiveSheet.EnableCalculation = True
-  Application.ScreenUpdating = True
+  Application.ScreenUpdating    = True
 
   Set cal = Nothing
 End Sub
@@ -121,10 +121,13 @@ A list of holiday. Default is japanese holiday (2013-2032).
 
 ```
 dim hList as Object
+
 set hList = CreateObject("System.Collections.ArrayList")
 hList.add CDate("2016/1/1")
+hList.add CDate("2016/1/2")
+
 holidayList = hList
-set hList = nothing
+set hList   = nothing
 ```
 
 

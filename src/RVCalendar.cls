@@ -258,19 +258,20 @@ End Property
 ' init
 ' ---
 Public Sub Class_Initialize()
-  saturdayBgColor = RGB(0, 125, 204)
-  saturdayColor = RGB(255, 255, 255)
-  offdayBgColor = RGB(204, 0, 0)
-  offdayColor = RGB(255, 255, 255)
-  ondayBgColor = RGB(100, 100, 100)
-  ondayColor = RGB(255, 255, 255)
-  fieldBgColor = RGB(50, 50, 50)
-  fieldColor = RGB(255, 255, 255)
+  saturdayBgColor  = RGB(0, 125, 204)
+  saturdayColor    = RGB(255, 255, 255)
+  offdayBgColor    = RGB(204, 0, 0)
+  offdayColor      = RGB(255, 255, 255)
+  ondayBgColor     = RGB(100, 100, 100)
+  ondayColor       = RGB(255, 255, 255)
+  fieldBgColor     = RGB(50, 50, 50)
+  fieldColor       = RGB(255, 255, 255)
   highlightBgColor = RGB(204, 190, 0)
-  highlightColor = RGB(255, 255, 255)
-  fontSize = 10
-  outputType = "book"
-  
+  highlightColor   = RGB(255, 255, 255)
+  fontSize         = 10
+  outputType       = "book"
+  lang             = "ja"
+
   ' this is a japanese holiday list from 2013 to 2032
   holidayList = CreateObject("System.Collections.ArrayList")
   holidayList.Add CDate("2013/1/1")
@@ -631,7 +632,6 @@ End Sub
 
 Public Sub init(ByVal t As Date)
   calDate = t
-  lang = "ja"
 End Sub
 
 
@@ -671,10 +671,10 @@ Public Function monthlyList() As Object
   Dim wday As Integer
   Dim dateItem As RVDateItem
   Dim i As Variant
-  
+
   Set dateList = CreateObject("System.Collections.ArrayList")
   currentDay = 1
-  
+
   ' the position of startday and enddate
   startPos = 0
   Select Case getCalWday(firstDayInMonth(calDate))
@@ -698,49 +698,48 @@ Public Function monthlyList() As Object
   Dim h As Variant
   For i = 0 To kMonthSize - 1
     Set dateItem = New RVDateItem
-    
+
     If i < startPos Or i > endPos Then
       dateItem.bgColor = fieldBgColor
       dateItem.color = fieldColor
     Else
       dateItem.dateValue = DateSerial(calYear, calMonth, currentDay)
       wday = getCalWday(dateItem.dateValue)
-      
+
       ' sat
       If wday = 7 Then
         dateItem.bgColor = saturdayBgColor
-        dateItem.color = saturdayColor
+        dateItem.color   = saturdayColor
       ElseIf wday = 1 Then
         dateItem.bgColor = offdayBgColor
-        dateItem.color = offdayColor
+        dateItem.color   = offdayColor
       ElseIf calYear = year(Date) And calMonth = month(Date) And currentDay = day(Date) Then
         dateItem.bgColor = highlightBgColor
-        dateItem.color = highlightColor
+        dateItem.color   = highlightColor
       Else
         dateItem.bgColor = ondayBgColor
-        dateItem.color = ondayColor
+        dateItem.color   = ondayColor
       End If
 
       ' check the day is holiday or not
-      For Each h In holidayList
-        If dateItem.dateValue = h Then
-          dateItem.bgColor = offdayBgColor
-          dateItem.color = offdayColor
-          dateItem.isHoliday = True
-        End If
-      Next
-      
+      If holidayList.contains(dateItem.dateValue) Then
+        dateItem.bgColor   = offdayBgColor
+        dateItem.color     = offdayColor
+        dateItem.isHoliday = True
+      End If
+
       dateItem.value = currentDay
-      currentDay = currentDay + 1
+      currentDay     = currentDay + 1
     End If
+
     dateItem.fontSize = fontSize
-    
     dateList.Add dateItem
+
     Set dateItem = Nothing
   Next
 
   Set monthlyList = dateList
-  Set dateList = Nothing
+  Set dateList    = Nothing
 End Function
 
 ' Return the weekday val
@@ -749,21 +748,22 @@ Public Function getCalWday(ByVal val As Date) As Integer
 End Function
 
 Public Function calHead() As Object
-  Dim head As Object
+  Dim headList As Object
   Dim langList As Object
   Dim dateItem As RVDateItem
-  Set head = CreateObject("System.Collections.ArrayList")
+
+  Set headList = CreateObject("System.Collections.ArrayList")
   Set langList = CreateObject("System.Collections.ArrayList")
-  
+
   Select Case lang
   Case "ja"
-    langList.Add "ì˙"
-    langList.Add "åé"
-    langList.Add "âŒ"
-    langList.Add "êÖ"
-    langList.Add "ñÿ"
-    langList.Add "ã‡"
-    langList.Add "ìy"
+    langList.Add "Êó•"
+    langList.Add "Êúà"
+    langList.Add "ÁÅ´"
+    langList.Add "Ê∞¥"
+    langList.Add "Êú®"
+    langList.Add "Èáë"
+    langList.Add "Âúü"
   Case Else
     langList.Add "su"
     langList.Add "mo"
@@ -773,21 +773,22 @@ Public Function calHead() As Object
     langList.Add "fr"
     langList.Add "sa"
   End Select
-  
+
   Dim k As Variant
   For Each k In langList
-    Set dateItem = New RVDateItem
-    dateItem.value = k
-    dateItem.bgColor = fieldBgColor
-    dateItem.color = fieldColor
+    Set dateItem      = New RVDateItem
+    dateItem.value    = k
+    dateItem.bgColor  = fieldBgColor
+    dateItem.color    = fieldColor
     dateItem.fontSize = fontSize
-    head.Add dateItem
+
+    headList.Add dateItem
     Set dateItem = Nothing
   Next
-  
-  Set calHead = head
+
+  Set calHead  = headList
   Set langList = Nothing
-  Set head = Nothing
+  Set headList = Nothing
 End Function
 
 ' render calendar
@@ -797,48 +798,50 @@ Public Sub render(ByVal sheet As Worksheet, ByVal firstRow As Long, ByVal firstC
   Dim c As range
   Dim mSize As Integer
   Dim i As Variant
-  
+
   fRow = firstRow
   fCol = firstColumn
-  
+
   If fRow < 0 Or fCol < 0 Then
     Exit Sub
   End If
-  
-  sheet.range(Cells(fRow, fCol), Cells(Rows.Count, fCol + kWeekSize)).Clear
-  
+
+  ' clear
+  sheet.Range(Cells(fRow, fCol), Cells(Rows.Count, fCol + kWeekSize)).Clear
+
   If hasHead Then
     ' print month year
     sheet.Cells(fRow, fCol).value = Format(calDate, "mmm yyyy")
     fRow = fRow + 1
-    
+
     For i = 1 To kWeekSize
       sheet.Cells(fRow, fCol).ClearContents
-      sheet.Cells(fRow, fCol).value = calHead.item(i - 1).value
-      sheet.Cells(fRow, fCol).Font.color = calHead.item(i - 1).color
-      sheet.Cells(fRow, fCol).Font.size = calHead.item(i - 1).fontSize
+      sheet.Cells(fRow, fCol).value          = calHead.item(i - 1).value
+      sheet.Cells(fRow, fCol).Font.color     = calHead.item(i - 1).color
+      sheet.Cells(fRow, fCol).Font.size      = calHead.item(i - 1).fontSize
       sheet.Cells(fRow, fCol).Interior.color = calHead.item(i - 1).bgColor
       fCol = firstColumn + i
     Next
   End If
-  
-  fRow = fRow + 1
-  fCol = firstColumn
+
+  fRow  = fRow + 1
+  fCol  = firstColumn
   mSize = monthlyList.Count - 1
-  
+
   For i = 0 To mSize
     Set c = sheet.Cells(fRow, fCol)
+
     If monthlyList.item(i).value >= 1 Then
       c.value = monthlyList.item(i).value
     End If
-      
-    c.Font.color = monthlyList.item(i).color
-    c.Font.size = monthlyList.item(i).fontSize
+
+    c.Font.color     = monthlyList.item(i).color
+    c.Font.size      = monthlyList.item(i).fontSize
     c.Interior.color = monthlyList.item(i).bgColor
 
-    fCol = fCol + 1
+    fCol  = fCol + 1
     Set c = Nothing
-      
+
     If i Mod kWeekSize = 6 Then
       fCol = firstColumn
       fRow = fRow + 1
